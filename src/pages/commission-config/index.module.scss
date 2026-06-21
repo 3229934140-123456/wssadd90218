@@ -1,0 +1,340 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.creatorInfo {
+  display: flex;
+  align-items: center;
+  padding: $spacing-lg $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1px solid $color-divider;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  margin-right: $spacing-md;
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.platform {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+}
+
+.ruleTypeSelector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+}
+
+.ruleTypeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-lg $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-bg-tag;
+    border-color: $color-primary;
+  }
+}
+
+.ruleIcon {
+  font-size: 48rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.ruleLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.ruleDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+  text-align: center;
+}
+
+.formGroup {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+}
+
+.required {
+  color: $color-error;
+  margin-left: $spacing-xs;
+}
+
+.formHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+  padding: 0 $spacing-md;
+  height: 88rpx;
+}
+
+.input {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.inputPrefix {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-right: $spacing-sm;
+}
+
+.inputSuffix {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  margin-left: $spacing-sm;
+}
+
+.tierList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.tierItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.tierIndex {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: 50%;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  flex-shrink: 0;
+}
+
+.tierInputs {
+  flex: 1;
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.tierInput {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tierInputLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.tierInputField {
+  display: flex;
+  align-items: center;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+  padding: 0 $spacing-sm;
+  height: 64rpx;
+}
+
+.tierInput {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.deleteTierBtn {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-error;
+  font-size: $font-size-lg;
+  flex-shrink: 0;
+}
+
+.addTierBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border: 2rpx dashed $color-primary;
+}
+
+.currentRule {
+  padding: $spacing-md;
+  background: $color-bg-tag;
+  border-radius: $radius-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.currentRuleLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.currentRuleValue {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.preview {
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  border-radius: $radius-md;
+  margin-top: $spacing-lg;
+}
+
+.previewTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-primary;
+  margin-bottom: $spacing-md;
+}
+
+.previewContent {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+}
+
+.previewExample {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+}
+
+.exampleRow {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px dashed $color-border;
+  }
+}
+
+.exampleLabel {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+}
+
+.exampleValue {
+  color: $color-amount;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-top: 1px solid $color-divider;
+  z-index: 100;
+}
+
+.btnCancel {
+  flex: 1;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.btnSave {
+  flex: 2;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}

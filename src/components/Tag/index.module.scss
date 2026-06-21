@@ -1,0 +1,52 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+
+  &.high {
+    background: $color-bg-tag-high;
+    color: $color-roi-high;
+  }
+
+  &.medium {
+    background: $color-bg-tag-medium;
+    color: $color-roi-medium;
+  }
+
+  &.low {
+    background: $color-bg-tag-low;
+    color: $color-roi-low;
+  }
+
+  &.pending {
+    background: $color-bg-tag;
+    color: $color-primary;
+  }
+
+  &.success {
+    background: $color-bg-tag-high;
+    color: $color-success;
+  }
+
+  &.warning {
+    background: $color-bg-tag-medium;
+    color: $color-warning;
+  }
+
+  &.error {
+    background: $color-bg-tag-low;
+    color: $color-error;
+  }
+
+  &.default {
+    background: $color-bg-hover;
+    color: $color-text-secondary;
+  }
+}

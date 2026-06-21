@@ -1,0 +1,445 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl $page-padding;
+  color: $color-text-white;
+}
+
+.creatorInfo {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+  margin-right: $spacing-md;
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+}
+
+.period {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.highCommissionAlert {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  background: rgba(239, 68, 68, 0.2);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+}
+
+.alertIcon {
+  font-size: 36rpx;
+  margin-right: $spacing-sm;
+}
+
+.alertText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.amountSection {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.amountLabel {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.amountValue {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+}
+
+.statusBadge {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  &.pending {
+    background: $color-bg-tag-medium;
+    color: $color-roi-medium;
+  }
+
+  &.confirmed {
+    background: $color-bg-tag;
+    color: $color-primary;
+  }
+
+  &.paid {
+    background: $color-bg-tag-high;
+    color: $color-roi-high;
+  }
+
+  &.disputed {
+    background: $color-bg-tag-low;
+    color: $color-roi-low;
+  }
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  margin-right: $spacing-sm;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+}
+
+.statItem {
+  text-align: center;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.statValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-amount;
+  margin-bottom: $spacing-xs;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.customerStats {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-divider;
+}
+
+.customerItem {
+  flex: 1;
+  text-align: center;
+}
+
+.customerValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.customerLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-align: right;
+  flex: 1;
+  margin-left: $spacing-md;
+}
+
+.dealList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.dealCard {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.dealHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px dashed $color-border;
+}
+
+.projectInfo {
+  flex: 1;
+}
+
+.projectName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  display: flex;
+  align-items: center;
+}
+
+.categoryTag {
+  display: inline-block;
+  padding: 2rpx 8rpx;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  margin-right: $spacing-xs;
+
+  &.skincare {
+    background: #DBEAFE;
+    color: #1D4ED8;
+  }
+
+  &.hair_removal {
+    background: #D1FAE5;
+    color: #047857;
+  }
+
+  &.anti_aging {
+    background: #FEE2E2;
+    color: #B91C1C;
+  }
+}
+
+.highCommissionTag {
+  display: inline-block;
+  padding: 2rpx 8rpx;
+  background: #FEE2E2;
+  color: #EF4444;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  margin-left: $spacing-xs;
+}
+
+.projectAmount {
+  text-align: right;
+}
+
+.price {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-amount;
+  margin-bottom: $spacing-xs;
+}
+
+.commission {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.customerInfo {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-xs;
+}
+
+.customerDetail {
+  color: $color-text-secondary;
+}
+
+.customerTag {
+  display: inline-block;
+  padding: 2rpx 8rpx;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  margin-left: $spacing-sm;
+
+  &.first {
+    background: #DBEAFE;
+    color: #1D4ED8;
+  }
+
+  &.repeat {
+    background: #D1FAE5;
+    color: #047857;
+  }
+}
+
+.dates {
+  color: $color-text-tertiary;
+  text-align: right;
+}
+
+.remark {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-top: 1px solid $color-divider;
+  z-index: 100;
+}
+
+.btnReject {
+  flex: 1;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-hover;
+  color: $color-error;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.btnConfirm {
+  flex: 2;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.btnDisabled {
+  background: $color-text-disabled !important;
+  color: $color-text-white !important;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  width: 600rpx;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  text-align: center;
+}
+
+.modalText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-xl;
+  text-align: center;
+}
+
+.modalButtons {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.modalBtnCancel {
+  flex: 1;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.modalBtnConfirm {
+  flex: 1;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.emptyDeals {
+  padding: $spacing-xl 0;
+  text-align: center;
+  color: $color-text-tertiary;
+  font-size: $font-size-sm;
+}

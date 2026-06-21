@@ -1,0 +1,150 @@
+@use '@/styles/variables.scss' as *;
+
+.calendar {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-lg;
+
+    .navBtn {
+      width: 64rpx;
+      height: 64rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-md;
+      background: $color-bg-hover;
+      font-size: $font-size-lg;
+      transition: all $transition-base;
+
+      &:active {
+        transform: scale(0.95);
+        background: $color-bg-page;
+      }
+    }
+
+    .monthText {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $color-text-primary;
+    }
+  }
+
+  .weekDays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: $spacing-sm;
+
+    .weekDay {
+      text-align: center;
+      font-size: $font-size-sm;
+      color: $color-text-tertiary;
+      padding: $spacing-sm 0;
+    }
+  }
+
+  .daysGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8rpx;
+
+    .dayCell {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-md;
+      position: relative;
+      transition: all $transition-base;
+
+      &:active {
+        transform: scale(0.95);
+      }
+
+      .dayNumber {
+        font-size: $font-size-md;
+        font-weight: $font-weight-medium;
+        color: $color-text-primary;
+      }
+
+      .dot {
+        width: 8rpx;
+        height: 8rpx;
+        border-radius: 50%;
+        margin-top: 4rpx;
+        background: $color-primary;
+      }
+
+      &.today {
+        background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+
+        .dayNumber {
+          color: $color-text-white;
+          font-weight: $font-weight-semibold;
+        }
+
+        .dot {
+          background: $color-text-white;
+        }
+      }
+
+      &.hasSettlement {
+        .dot {
+          background: $color-success;
+        }
+      }
+
+      &.selected {
+        background: rgba(37, 99, 235, 0.1);
+
+        .dayNumber {
+          color: $color-primary;
+          font-weight: $font-weight-semibold;
+        }
+      }
+
+      &.otherMonth {
+        opacity: 0.3;
+      }
+    }
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-lg;
+    margin-top: $spacing-lg;
+    padding-top: $spacing-md;
+    border-top: 1rpx solid $color-divider;
+
+    .legendItem {
+      display: flex;
+      align-items: center;
+      font-size: $font-size-xs;
+      color: $color-text-secondary;
+
+      .dot {
+        width: 12rpx;
+        height: 12rpx;
+        border-radius: 50%;
+        margin-right: $spacing-xs;
+
+        &.blue {
+          background: $color-primary;
+        }
+
+        &.green {
+          background: $color-success;
+        }
+      }
+    }
+  }
+}

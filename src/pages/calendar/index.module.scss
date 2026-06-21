@@ -1,0 +1,326 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.content {
+  padding: $spacing-md $page-padding;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+
+  .sectionTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+
+  .sectionSubtitle {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+}
+
+.pendingList {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.pendingItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  transition: all $transition-base;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+
+  .avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: $radius-round;
+    margin-right: $spacing-md;
+    background: $color-bg-hover;
+  }
+
+  .info {
+    flex: 1;
+
+    .name {
+      font-size: $font-size-md;
+      font-weight: $font-weight-medium;
+      color: $color-text-primary;
+      margin-bottom: $spacing-xs;
+      display: flex;
+      align-items: center;
+
+      .highBadge {
+        margin-left: $spacing-sm;
+        font-size: $font-size-xs;
+        color: $color-error;
+        background: $color-bg-tag-low;
+        padding: 2rpx 12rpx;
+        border-radius: $radius-xs;
+      }
+    }
+
+    .meta {
+      font-size: $font-size-xs;
+      color: $color-text-tertiary;
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+
+      .period {
+        color: $color-text-secondary;
+      }
+
+      .count {
+        color: $color-text-secondary;
+      }
+    }
+  }
+
+  .amount {
+    text-align: right;
+    margin-right: $spacing-md;
+
+    .value {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $color-amount;
+      display: block;
+    }
+
+    .deadline {
+      font-size: $font-size-xs;
+      color: $color-warning;
+    }
+
+    .urgent {
+      color: $color-error;
+      font-weight: $font-weight-medium;
+    }
+  }
+
+  .arrow {
+    font-size: $font-size-lg;
+    color: $color-text-tertiary;
+  }
+}
+
+.selectedDateInfo {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  .dateHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-md;
+    border-bottom: 1rpx solid $color-divider;
+
+    .date {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-semibold;
+      color: $color-text-primary;
+    }
+
+    .count {
+      font-size: $font-size-sm;
+      color: $color-text-secondary;
+
+      .num {
+        color: $color-primary;
+        font-weight: $font-weight-semibold;
+      }
+    }
+  }
+
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+
+    .summaryItem {
+      text-align: center;
+
+      .value {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        color: $color-text-primary;
+        display: block;
+        margin-bottom: 4rpx;
+
+        &.amount {
+          color: $color-amount;
+        }
+      }
+
+      .label {
+        font-size: $font-size-xs;
+        color: $color-text-tertiary;
+      }
+    }
+  }
+
+  .settlementList {
+    .settlementItem {
+      display: flex;
+      align-items: center;
+      padding: $spacing-md 0;
+      border-top: 1rpx dashed $color-divider;
+
+      &:first-child {
+        border-top: none;
+      }
+
+      .avatar {
+        width: 64rpx;
+        height: 64rpx;
+        border-radius: $radius-round;
+        margin-right: $spacing-md;
+        background: $color-bg-hover;
+      }
+
+      .info {
+        flex: 1;
+
+        .name {
+          font-size: $font-size-md;
+          font-weight: $font-weight-medium;
+          color: $color-text-primary;
+          margin-bottom: 4rpx;
+        }
+
+        .meta {
+          font-size: $font-size-xs;
+          color: $color-text-tertiary;
+        }
+      }
+
+      .status {
+        text-align: right;
+
+        .amount {
+          font-size: $font-size-md;
+          font-weight: $font-weight-semibold;
+          color: $color-amount;
+          display: block;
+          margin-bottom: 4rpx;
+        }
+
+        .statusText {
+          font-size: $font-size-xs;
+          padding: 4rpx 12rpx;
+          border-radius: $radius-xs;
+
+          &.pending {
+            background: $color-bg-tag;
+            color: $color-primary;
+          }
+
+          &.confirmed {
+            background: $color-bg-tag-high;
+            color: $color-success;
+          }
+
+          &.paid {
+            background: $color-bg-tag-high;
+            color: $color-success;
+          }
+
+          &.disputed {
+            background: $color-bg-tag-low;
+            color: $color-error;
+          }
+        }
+      }
+    }
+  }
+}
+
+.empty {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-xl * 2;
+  text-align: center;
+}
+
+.tabBar {
+  display: flex;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+  padding: 0 $page-padding;
+
+  .tabItem {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80rpx;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    position: relative;
+    transition: all $transition-base;
+
+    &.active {
+      color: $color-primary;
+      font-weight: $font-weight-semibold;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 48rpx;
+        height: 4rpx;
+        background: $color-primary;
+        border-radius: 2rpx;
+      }
+    }
+
+    .badge {
+      position: absolute;
+      top: 8rpx;
+      right: 16rpx;
+      min-width: 32rpx;
+      height: 32rpx;
+      padding: 0 8rpx;
+      background: $color-error;
+      color: $color-text-white;
+      font-size: 20rpx;
+      font-weight: $font-weight-semibold;
+      border-radius: $radius-round;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}

@@ -1,0 +1,458 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl $page-padding;
+  color: $color-text-white;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.3);
+  margin-right: $spacing-lg;
+}
+
+.info {
+  flex: 1;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.name {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-right: $spacing-sm;
+}
+
+.highCommissionTag {
+  padding: 4rpx 12rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.platform {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  margin-bottom: $spacing-xs;
+}
+
+.followers {
+  font-size: $font-size-sm;
+  opacity: 0.85;
+}
+
+.storeInfo {
+  display: flex;
+  gap: $spacing-md;
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.storeInfoItem {
+  display: flex;
+  align-items: center;
+}
+
+.roiSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-lg;
+}
+
+.roiLabel {
+  font-size: $font-size-sm;
+  opacity: 0.9;
+}
+
+.roiValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+}
+
+.roiTag {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+
+  &.high {
+    background: $color-roi-high;
+    color: $color-text-white;
+  }
+
+  &.medium {
+    background: $color-roi-medium;
+    color: $color-text-white;
+  }
+
+  &.low {
+    background: $color-roi-low;
+    color: $color-text-white;
+  }
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.sectionIcon {
+  margin-right: $spacing-sm;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-amount;
+  margin-bottom: $spacing-xs;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.customerAnalysis {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $color-divider;
+}
+
+.customerItem {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.customerValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.customerLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.videoList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.videoCard {
+  display: flex;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.videoCover {
+  width: 240rpx;
+  height: 160rpx;
+  position: relative;
+}
+
+.coverImg {
+  width: 100%;
+  height: 100%;
+}
+
+.playIcon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-white;
+  font-size: 28rpx;
+}
+
+.videoInfo {
+  flex: 1;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.videoTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  @include text-ellipsis-multi(2);
+}
+
+.videoMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.projectList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.projectItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.projectInfo {
+  flex: 1;
+}
+
+.projectName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.projectCategory {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.projectPrice {
+  text-align: right;
+}
+
+.price {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-amount;
+  margin-bottom: $spacing-xs;
+}
+
+.commission {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.categoryTag {
+  display: inline-block;
+  padding: 2rpx 8rpx;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  margin-right: $spacing-xs;
+
+  &.skincare {
+    background: #DBEAFE;
+    color: #1D4ED8;
+  }
+
+  &.hair_removal {
+    background: #D1FAE5;
+    color: #047857;
+  }
+
+  &.anti_aging {
+    background: #FEE2E2;
+    color: #B91C1C;
+  }
+}
+
+.settlementList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.settlementItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.settlementInfo {
+  flex: 1;
+}
+
+.settlementMonth {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.settlementMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.settlementAmount {
+  text-align: right;
+}
+
+.commissionAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-amount;
+  margin-bottom: $spacing-xs;
+}
+
+.settlementStatus {
+  font-size: $font-size-xs;
+
+  &.paid {
+    color: $color-roi-high;
+  }
+
+  &.confirmed {
+    color: $color-primary;
+  }
+
+  &.pending {
+    color: $color-roi-medium;
+  }
+
+  &.disputed {
+    color: $color-roi-low;
+  }
+}
+
+.commissionRule {
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-sm;
+}
+
+.ruleType {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.ruleDetail {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+}
+
+.tierItem {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1px dashed $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.tierThreshold {
+  color: $color-text-secondary;
+}
+
+.tierPercentage {
+  color: $color-amount;
+  font-weight: $font-weight-medium;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-top: 1px solid $color-divider;
+  z-index: 100;
+}
+
+.btnSecondary {
+  flex: 1;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.btnPrimary {
+  flex: 1;
+  height: $button-height-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}

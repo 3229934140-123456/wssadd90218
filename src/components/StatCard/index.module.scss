@@ -1,0 +1,109 @@
+@use '@/styles/variables.scss' as *;
+
+.statCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-sm;
+
+    .label {
+      font-size: $font-size-sm;
+      color: $color-text-secondary;
+      font-weight: $font-weight-normal;
+    }
+
+    .trend {
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+
+      &.up {
+        color: $color-growth;
+      }
+
+      &.down {
+        color: $color-decline;
+      }
+
+      &.stable {
+        color: $color-text-tertiary;
+      }
+    }
+  }
+
+  .value {
+    font-size: $font-size-xxl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    line-height: 1.2;
+    margin-bottom: $spacing-xs;
+
+    &.amount {
+      color: $color-amount;
+    }
+  }
+
+  .subInfo {
+    font-size: $font-size-xs;
+    color: $color-text-tertiary;
+  }
+
+  .iconArea {
+    width: 64rpx;
+    height: 64rpx;
+    border-radius: $radius-md;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-sm;
+
+    &.blue {
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    &.green {
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    &.orange {
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    &.red {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .iconText {
+      font-size: 32rpx;
+      font-weight: $font-weight-bold;
+
+      &.blue {
+        color: $color-primary;
+      }
+
+      &.green {
+        color: $color-success;
+      }
+
+      &.orange {
+        color: $color-warning;
+      }
+
+      &.red {
+        color: $color-error;
+      }
+    }
+  }
+}

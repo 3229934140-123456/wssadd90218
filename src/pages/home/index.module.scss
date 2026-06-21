@@ -1,0 +1,345 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-lg $page-padding $spacing-xl;
+  border-radius: 0 0 $radius-xl $radius-xl;
+  margin-bottom: -$spacing-xl;
+  position: relative;
+  z-index: 1;
+
+  .greeting {
+    color: $color-text-white;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-xs;
+  }
+
+  .date {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: $font-size-sm;
+  }
+
+  .summary {
+    margin-top: $spacing-lg;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: $color-text-white;
+
+    .summaryItem {
+      text-align: center;
+      flex: 1;
+
+      .value {
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        display: block;
+        margin-bottom: 4rpx;
+      }
+
+      .label {
+        font-size: $font-size-xs;
+        opacity: 0.9;
+      }
+    }
+  }
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  padding: 0 $page-padding;
+  padding-bottom: 120rpx;
+}
+
+.section {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+
+  .sectionTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+
+  .viewAll {
+    font-size: $font-size-sm;
+    color: $color-primary;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.rankingList {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.rankingItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  transition: all $transition-base;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+
+  .rank {
+    width: 48rpx;
+    height: 48rpx;
+    border-radius: $radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    margin-right: $spacing-md;
+
+    &.rank1 {
+      background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+      color: #fff;
+    }
+
+    &.rank2 {
+      background: linear-gradient(135deg, #C0C0C0 0%, #A9A9A9 100%);
+      color: #fff;
+    }
+
+    &.rank3 {
+      background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%);
+      color: #fff;
+    }
+
+    &.other {
+      background: $color-bg-hover;
+      color: $color-text-secondary;
+    }
+  }
+
+  .avatar {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: $radius-round;
+    margin-right: $spacing-md;
+    background: $color-bg-hover;
+  }
+
+  .info {
+    flex: 1;
+
+    .name {
+      font-size: $font-size-md;
+      font-weight: $font-weight-medium;
+      color: $color-text-primary;
+      margin-bottom: 4rpx;
+      @include text-ellipsis;
+    }
+
+    .meta {
+      font-size: $font-size-xs;
+      color: $color-text-tertiary;
+    }
+  }
+
+  .revenue {
+    text-align: right;
+    margin-right: $spacing-md;
+
+    .amount {
+      font-size: $font-size-md;
+      font-weight: $font-weight-semibold;
+      color: $color-amount;
+      display: block;
+    }
+
+    .label {
+      font-size: $font-size-xs;
+      color: $color-text-tertiary;
+    }
+  }
+
+  .trend {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    min-width: 80rpx;
+    text-align: right;
+
+    &.up {
+      color: $color-growth;
+    }
+
+    &.down {
+      color: $color-decline;
+    }
+
+    &.stable {
+      color: $color-text-tertiary;
+    }
+  }
+}
+
+.pendingCards {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.pendingCard {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.settlement {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+    border: 2rpx solid rgba(37, 99, 235, 0.1);
+  }
+
+  &.dispute {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+    border: 2rpx solid rgba(245, 158, 11, 0.1);
+  }
+
+  .cardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-md;
+
+    .cardTitle {
+      font-size: $font-size-md;
+      font-weight: $font-weight-semibold;
+      color: $color-text-primary;
+    }
+
+    .badge {
+      min-width: 40rpx;
+      height: 40rpx;
+      padding: 0 12rpx;
+      border-radius: $radius-round;
+      background: $color-error;
+      color: $color-text-white;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-semibold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .cardContent {
+    .count {
+      font-size: $font-size-xxl;
+      font-weight: $font-weight-bold;
+      color: $color-text-primary;
+      display: block;
+      line-height: 1.2;
+      margin-bottom: 4rpx;
+    }
+
+    .amount {
+      font-size: $font-size-sm;
+      color: $color-primary;
+      font-weight: $font-weight-medium;
+    }
+
+    .desc {
+      font-size: $font-size-xs;
+      color: $color-text-tertiary;
+    }
+  }
+}
+
+.projectComparison {
+  display: flex;
+  gap: $spacing-md;
+  overflow-x: auto;
+  padding-bottom: $spacing-sm;
+  @include scroll-x-container;
+}
+
+.projectCard {
+  @include scroll-x-item(320rpx);
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  padding: $spacing-lg;
+  flex-shrink: 0;
+
+  .projectTitle {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1rpx solid $color-divider;
+  }
+
+  .storeRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-sm 0;
+
+    &:not(:last-child) {
+      border-bottom: 1rpx dashed $color-divider;
+    }
+
+    .storeName {
+      font-size: $font-size-sm;
+      color: $color-text-secondary;
+    }
+
+    .storeStats {
+      display: flex;
+      gap: $spacing-md;
+
+      .stat {
+        text-align: right;
+
+        .value {
+          font-size: $font-size-sm;
+          font-weight: $font-weight-semibold;
+          color: $color-text-primary;
+          display: block;
+        }
+
+        .label {
+          font-size: $font-size-xs;
+          color: $color-text-tertiary;
+        }
+      }
+    }
+  }
+}
