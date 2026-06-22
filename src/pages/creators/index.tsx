@@ -1,9 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Input } from '@tarojs/components';
+import { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import CreatorCard from '@/components/CreatorCard';
 import Empty from '@/components/Empty';
-import { mockCreators } from '@/data/creators';
+import { useAppStore } from '@/store';
 import type { ROIType } from '@/types/creator';
 import styles from './index.module.scss';
 
@@ -15,6 +16,22 @@ const CreatorsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [sortType, setSortType] = useState<SortType>('roi');
   const [sortAsc, setSortAsc] = useState(false);
+  const [, forceUpdate] = useState(0);
+
+  const creators = useAppStore((state) => state.creators);
+  const creatorRankings = useAppStore((state) => state.creatorRankings);
+
+  useDidShow(() => {
+    forceUpdate((n) => n + 1);
+  });
+
+  const creatorsWithRanking = useMemo(() => {
+    return creators.map((c) => {
+      const ranking = creatorRankings.find((r) => r.creatorId === c.id);
+      if (!ranking) return c;
+      return { ...c, roi: ranking.roi, roiValue: ranking.roiValue };
+    });
+  }, [creators, creatorRankings]);
 
   const filterOptions: { value: FilterType; label: string }[] = [
     { value: 'all', label: '全部' },
@@ -31,7 +48,7 @@ const CreatorsPage: React.FC = () => {
   ];
 
   const filteredCreators = useMemo(() => {
-    let result = [...mockCreators];
+    let result = [...creatorsWithRanking];
 
     if (searchText) {
       const keyword = searchText.toLowerCase();
@@ -62,14 +79,14 @@ const CreatorsPage: React.FC = () => {
     });
 
     return result;
-  }, [searchText, filterType, sortType, sortAsc]);
+  }, [creatorsWithRanking, searchText, filterType, sortType, sortAsc]);
 
   const counts = useMemo(() => ({
-    all: mockCreators.length,
-    high: mockCreators.filter(c => c.roi === 'high').length,
-    medium: mockCreators.filter(c => c.roi === 'medium').length,
-    low: mockCreators.filter(c => c.roi === 'low').length,
-  }), []);
+    all: creatorsWithRanking.length,
+    high: creatorsWithRanking.filter(c => c.roi === 'high').length,
+    medium: creatorsWithRanking.filter(c => c.roi === 'medium').length,
+    low: creatorsWithRanking.filter(c => c.roi === 'low').length,
+  }), [creatorsWithRanking]);
 
   const handleSort = (type: SortType) => {
     if (sortType === type) {

@@ -156,6 +156,52 @@
     margin-bottom: $spacing-md;
   }
 
+  .returnInfo {
+    background: #FFF7ED;
+    border-radius: $radius-md;
+    padding: $spacing-md;
+    margin-bottom: $spacing-md;
+    border-left: 4rpx solid $color-warning;
+
+    .returnInfoHeader {
+      display: flex;
+      align-items: center;
+      margin-bottom: $spacing-sm;
+
+      .returnInfoIcon {
+        margin-right: $spacing-xs;
+      }
+
+      .returnInfoTitle {
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        color: #92400E;
+        flex: 1;
+      }
+
+      .returnDate {
+        font-size: $font-size-xs;
+        color: #B45309;
+      }
+    }
+
+    .requiredList {
+      .requiredLabel {
+        font-size: $font-size-xs;
+        color: #92400E;
+        margin-bottom: $spacing-xs;
+        display: block;
+      }
+
+      .requiredItem {
+        font-size: $font-size-xs;
+        color: #B45309;
+        line-height: 1.8;
+        display: block;
+      }
+    }
+  }
+
   .amountRow {
     display: flex;
     align-items: center;

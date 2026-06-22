@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, Input, Image } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
-import { getCreatorById } from '@/data/creators';
+import { useAppStore } from '@/store';
 import type { Creator, CommissionType, CommissionRule } from '@/types/creator';
 import { formatMoney, getCommissionTypeLabel } from '@/utils/format';
 import styles from './index.module.scss';
@@ -15,7 +15,8 @@ interface Tier {
 
 const CommissionConfigPage: React.FC = () => {
   const router = useRouter();
-  const [creator, setCreator] = useState<Creator | null>(null);
+  const creators = useAppStore((state) => state.creators);
+  const updateCommissionRule = useAppStore((state) => state.updateCommissionRule);
   const [ruleType, setRuleType] = useState<CommissionType>('fixed');
   const [fixedAmount, setFixedAmount] = useState('');
   const [percentage, setPercentage] = useState('');
@@ -25,6 +26,10 @@ const CommissionConfigPage: React.FC = () => {
   ]);
 
   const creatorId = router.params.id || '1';
+  const creator = useMemo(
+    () => creators.find((c) => c.id === creatorId) || null,
+    [creators, creatorId]
+  );
 
   const ruleTypes: { value: CommissionType; label: string; icon: string; desc: string }[] = [
     { value: 'fixed', label: '固定佣金', icon: '💵', desc: '每单固定金额' },
@@ -33,21 +38,15 @@ const CommissionConfigPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    loadData();
-  }, [creatorId]);
-
-  const loadData = () => {
-    const data = getCreatorById(creatorId);
-    if (data) {
-      setCreator(data);
-      setRuleType(data.commissionRule.type);
-      if (data.commissionRule.type === 'fixed') {
-        setFixedAmount(String(data.commissionRule.fixedAmount || ''));
-      } else if (data.commissionRule.type === 'per_order') {
-        setPercentage(String(((data.commissionRule.percentage || 0) * 100)));
-      } else if (data.commissionRule.type === 'tiered' && data.commissionRule.tiers) {
+    if (creator) {
+      setRuleType(creator.commissionRule.type);
+      if (creator.commissionRule.type === 'fixed') {
+        setFixedAmount(String(creator.commissionRule.fixedAmount || ''));
+      } else if (creator.commissionRule.type === 'per_order') {
+        setPercentage(String(((creator.commissionRule.percentage || 0) * 100)));
+      } else if (creator.commissionRule.type === 'tiered' && creator.commissionRule.tiers) {
         setTiers(
-          data.commissionRule.tiers.map((tier, index) => ({
+          creator.commissionRule.tiers.map((tier, index) => ({
             id: String(index + 1),
             threshold: String(tier.threshold),
             percentage: String(tier.percentage * 100),
@@ -55,7 +54,13 @@ const CommissionConfigPage: React.FC = () => {
         );
       }
     }
-  };
+  }, [creator]);
+
+  useDidShow(() => {
+    if (creator) {
+      setRuleType(creator.commissionRule.type);
+    }
+  });
 
   const getCurrentRuleDisplay = () => {
     if (!creator) return '';
@@ -138,6 +143,7 @@ const CommissionConfigPage: React.FC = () => {
     }
 
     Taro.showLoading({ title: '保存中...' });
+    updateCommissionRule(creatorId, newRule);
     setTimeout(() => {
       Taro.hideLoading();
       Taro.showModal({
@@ -148,7 +154,7 @@ const CommissionConfigPage: React.FC = () => {
           Taro.navigateBack();
         },
       });
-    }, 1000);
+    }, 500);
   };
 
   const handleCancel = () => {

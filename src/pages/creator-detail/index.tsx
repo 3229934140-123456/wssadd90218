@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import Empty from '@/components/Empty';
-import { getCreatorById } from '@/data/creators';
-import type { Creator, CommissionRule } from '@/types/creator';
+import { useAppStore } from '@/store';
+import type { CommissionRule } from '@/types/creator';
 import {
   formatMoney,
   formatNumber,
@@ -19,23 +19,17 @@ import styles from './index.module.scss';
 
 const CreatorDetailPage: React.FC = () => {
   const router = useRouter();
-  const [creator, setCreator] = useState<Creator | null>(null);
-  const [loading, setLoading] = useState(true);
+  const creators = useAppStore((state) => state.creators);
+  const settlements = useAppStore((state) => state.settlements);
 
   const creatorId = router.params.id || '1';
+  const creator = useMemo(
+    () => creators.find((c) => c.id === creatorId),
+    [creators, creatorId]
+  );
 
-  useEffect(() => {
-    loadData();
-  }, [creatorId]);
-
-  const loadData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const data = getCreatorById(creatorId);
-      setCreator(data || null);
-      setLoading(false);
-    }, 500);
-  };
+  useDidShow(() => {
+  });
 
   const handleConfigureCommission = () => {
     Taro.navigateTo({
@@ -44,7 +38,14 @@ const CreatorDetailPage: React.FC = () => {
   };
 
   const handleViewSettlements = () => {
-    Taro.showToast({ title: '查看历史结算', icon: 'none' });
+    const creatorSettlements = settlements.filter((s) => s.creatorId === creatorId);
+    if (creatorSettlements.length > 0) {
+      Taro.navigateTo({
+        url: `/pages/settlement-detail/index?id=${creatorSettlements[0].id}`,
+      });
+    } else {
+      Taro.showToast({ title: '暂无结算记录', icon: 'none' });
+    }
   };
 
   const handlePlayVideo = (videoTitle: string) => {
@@ -83,16 +84,6 @@ const CreatorDetailPage: React.FC = () => {
     paid: '已付款',
     disputed: '有争议',
   };
-
-  if (loading) {
-    return (
-      <View className={styles.page}>
-        <View style={{ padding: '200rpx 0', textAlign: 'center' }}>
-          <Text>加载中...</Text>
-        </View>
-      </View>
-    );
-  }
 
   if (!creator) {
     return (
@@ -309,15 +300,51 @@ const CreatorDetailPage: React.FC = () => {
           <Text className={styles.sectionIcon}>📋</Text>
           历史结算
         </Text>
-        {creator.settlementHistory.length > 0 ? (
-          <View className={styles.settlementList}>
-            {creator.settlementHistory.map(record => (
-              <View key={record.id} className={styles.settlementItem}>
+        {(() => {
+          const realSettlements = settlements.filter((s) => s.creatorId === creatorId);
+          const mergedList = [
+            ...realSettlements.map((s) => ({
+              id: s.id,
+              month: s.period,
+              customerCount: s.customerCount,
+              dealCount: s.dealCount,
+              totalAmount: s.totalAmount,
+              commission: s.commission,
+              status: s.status,
+              isHighCommission: s.isHighCommission,
+              fromStore: true,
+            })),
+            ...creator.settlementHistory
+              .filter((h) => !realSettlements.find((s) => s.id === h.id))
+              .map((h) => ({ ...h, fromStore: false, isHighCommission: false })),
+          ];
+          return mergedList.length > 0 ? (
+            <View className={styles.settlementList}>
+              {mergedList.map((record) => (
+                <View
+                key={record.id}
+                className={styles.settlementItem}
+                onClick={() => {
+                  if (record.fromStore) {
+                    Taro.navigateTo({
+                      url: `/pages/settlement-detail/index?id=${record.id}`,
+                    });
+                  }
+                }}
+              >
                 <View className={styles.settlementInfo}>
-                  <Text className={styles.settlementMonth}>{record.month}</Text>
+                  <View className={styles.settlementMonthRow}>
+                    <Text className={styles.settlementMonth}>{record.month}</Text>
+                    {record.isHighCommission && (
+                      <View className={styles.highCommissionTagSmall}>🔥</View>
+                    )}
+                  </View>
                   <Text className={styles.settlementMeta}>
                     到院{record.customerCount}人 · 成交{record.dealCount}单 · 营收{formatMoney(record.totalAmount)}
                   </Text>
+                  {record.fromStore && (
+                    <Text className={styles.settlementHint}>点击查看成交明细 ›</Text>
+                  )}
                 </View>
                 <View className={styles.settlementAmount}>
                   <Text className={styles.commissionAmount}>
@@ -332,8 +359,9 @@ const CreatorDetailPage: React.FC = () => {
           </View>
         ) : (
           <Empty icon="📋" title="暂无结算记录" description="该达人还没有结算记录" />
-        )}
-      </View>
+        );
+      })()}
+    </View>
 
       <View className={styles.actionBar}>
         <View className={styles.btnSecondary} onClick={handleConfigureCommission}>

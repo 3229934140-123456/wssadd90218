@@ -82,6 +82,24 @@
         background: $color-primary;
       }
 
+      .deadlineBadge {
+        position: absolute;
+        top: 2rpx;
+        right: 2rpx;
+        min-width: 24rpx;
+        height: 24rpx;
+        padding: 0 6rpx;
+        background: $color-error;
+        color: $color-text-white;
+        font-size: 18rpx;
+        font-weight: $font-weight-semibold;
+        border-radius: $radius-round;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+      }
+
       &.today {
         background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
 
@@ -96,8 +114,14 @@
       }
 
       &.hasSettlement {
-        .dot {
+        .dot.green {
           background: $color-success;
+        }
+      }
+
+      &.hasDeadline {
+        .dot.red {
+          background: $color-error;
         }
       }
 
@@ -143,6 +167,10 @@
 
         &.green {
           background: $color-success;
+        }
+
+        &.red {
+          background: $color-error;
         }
       }
     }

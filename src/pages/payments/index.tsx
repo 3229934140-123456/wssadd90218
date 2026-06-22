@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import Empty from '@/components/Empty';
-import { mockPayments, getPayments, getPaymentSummary } from '@/data/payments';
-import type { Payment, PaymentSummary } from '@/types/payment';
+import { useAppStore } from '@/store';
+import type { Payment } from '@/types/payment';
 import { formatMoney, getPayMethodLabel } from '@/utils/format';
 import styles from './index.module.scss';
 
@@ -12,8 +13,13 @@ type FilterType = 'all' | 'success' | 'processing' | 'failed';
 
 const PaymentsPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const [payments, setPayments] = useState<Payment[]>([]);
-  const [summary, setSummary] = useState<PaymentSummary | null>(null);
+  const [, forceUpdate] = useState(0);
+  const storePayments = useAppStore((state) => state.payments);
+  const confirmPayment = useAppStore((state) => state.confirmPayment);
+
+  useDidShow(() => {
+    forceUpdate((n) => n + 1);
+  });
 
   const filters: { value: FilterType; label: string }[] = [
     { value: 'all', label: '全部' },
@@ -34,39 +40,55 @@ const PaymentsPage: React.FC = () => {
     failed: '付款失败',
   };
 
-  useEffect(() => {
-    loadData();
-  }, [activeFilter]);
+  const payments = useMemo(() => {
+    return activeFilter === 'all'
+      ? storePayments
+      : storePayments.filter(p => p.status === activeFilter);
+  }, [storePayments, activeFilter]);
 
-  const loadData = () => {
-    const allPayments = getPayments();
-    const filtered = activeFilter === 'all'
-      ? allPayments
-      : allPayments.filter(p => p.status === activeFilter);
-    setPayments(filtered);
-    setSummary(getPaymentSummary());
-  };
+  const summary = useMemo(() => {
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const successPayments = storePayments.filter(p => p.status === 'success');
+    const processingPayments = storePayments.filter(p => p.status === 'processing');
+    const monthSuccess = successPayments.filter(p => p.payDate?.startsWith(currentMonth));
+    return {
+      totalPaid: successPayments.reduce((sum, p) => sum + p.amount, 0),
+      count: successPayments.length,
+      totalPending: processingPayments.reduce((sum, p) => sum + p.amount, 0),
+      monthPaid: monthSuccess.reduce((sum, p) => sum + p.amount, 0),
+    };
+  }, [storePayments]);
 
   const handleViewDetail = (payment: Payment) => {
+    const canConfirm = payment.status === 'processing';
     Taro.showModal({
       title: '付款详情',
       content: `
 达人：${payment.creatorName}
 金额：${formatMoney(payment.amount)}
-付款时间：${payment.payDate} ${payment.payTime}
+付款时间：${payment.payDate || '待付款'} ${payment.payTime || ''}
 收款账户：${payment.receiverAccount}
 收款人：${payment.receiverName}
 付款方式：${getPayMethodLabel(payment.payMethod)}
-操作员：${payment.operator}
+操作员：${payment.operator || '待操作'}
 备注：${payment.remark || '无'}
       `.trim(),
-      showCancel: false,
+      confirmText: canConfirm ? '确认付款' : '知道了',
+      showCancel: canConfirm,
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm && canConfirm) {
+          confirmPayment(payment.id);
+          Taro.showToast({ title: '付款成功', icon: 'success' });
+        }
+      },
     });
   };
 
-  const successCount = mockPayments.filter(p => p.status === 'success').length;
-  const processingCount = mockPayments.filter(p => p.status === 'processing').length;
-  const failedCount = mockPayments.filter(p => p.status === 'failed').length;
+  const successCount = storePayments.filter(p => p.status === 'success').length;
+  const processingCount = storePayments.filter(p => p.status === 'processing').length;
+  const failedCount = storePayments.filter(p => p.status === 'failed').length;
 
   return (
     <ScrollView

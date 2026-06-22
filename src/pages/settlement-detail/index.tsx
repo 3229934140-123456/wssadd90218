@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import React, { useState, useMemo } from 'react';
+import { View, Text, ScrollView, Image, Textarea } from '@tarojs/components';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import Empty from '@/components/Empty';
-import { getSettlementById } from '@/data/settlements';
+import { useAppStore } from '@/store';
 import type { Settlement } from '@/types/settlement';
 import {
   formatMoney,
@@ -14,12 +14,32 @@ import styles from './index.module.scss';
 
 const SettlementDetailPage: React.FC = () => {
   const router = useRouter();
-  const [settlement, setSettlement] = useState<Settlement | null>(null);
-  const [loading, setLoading] = useState(true);
+  const settlements = useAppStore((state) => state.settlements);
+  const confirmSettlement = useAppStore((state) => state.confirmSettlement);
+  const returnSettlementToDispute = useAppStore((state) => state.returnSettlementToDispute);
+
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [rejectEvidence, setRejectEvidence] = useState<string[]>([]);
 
   const settlementId = router.params.id || 'set1';
+
+  const evidenceOptions = [
+    '到店凭证',
+    '消费小票',
+    '聊天记录',
+    '项目确认单',
+    '其他材料',
+  ];
+
+  const settlement = useMemo(
+    () => settlements.find((s) => s.id === settlementId),
+    [settlements, settlementId]
+  );
+
+  useDidShow(() => {
+  });
 
   const statusLabels: Record<string, string> = {
     pending: '待确认',
@@ -28,25 +48,13 @@ const SettlementDetailPage: React.FC = () => {
     disputed: '有争议',
   };
 
-  useEffect(() => {
-    loadData();
-  }, [settlementId]);
-
-  const loadData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const data = getSettlementById(settlementId);
-      setSettlement(data || null);
-      setLoading(false);
-    }, 500);
-  };
-
   const handleConfirm = () => {
     setShowConfirmModal(true);
   };
 
   const handleConfirmSubmit = () => {
     Taro.showLoading({ title: '确认中...' });
+    confirmSettlement(settlementId);
     setTimeout(() => {
       Taro.hideLoading();
       setShowConfirmModal(false);
@@ -58,15 +66,32 @@ const SettlementDetailPage: React.FC = () => {
           Taro.navigateBack();
         },
       });
-    }, 1000);
+    }, 500);
   };
 
   const handleReject = () => {
+    setRejectReason('');
+    setRejectEvidence([]);
     setShowRejectModal(true);
   };
 
+  const toggleEvidence = (item: string) => {
+    setRejectEvidence((prev) =>
+      prev.includes(item) ? prev.filter((e) => e !== item) : [...prev, item]
+    );
+  };
+
   const handleRejectSubmit = () => {
+    if (!rejectReason.trim()) {
+      Taro.showToast({ title: '请填写退回原因', icon: 'none' });
+      return;
+    }
+    if (rejectEvidence.length === 0) {
+      Taro.showToast({ title: '请选择需要补充的材料', icon: 'none' });
+      return;
+    }
     Taro.showLoading({ title: '处理中...' });
+    returnSettlementToDispute(settlementId, rejectReason, rejectEvidence);
     setTimeout(() => {
       Taro.hideLoading();
       setShowRejectModal(false);
@@ -78,18 +103,8 @@ const SettlementDetailPage: React.FC = () => {
           Taro.navigateBack();
         },
       });
-    }, 1000);
+    }, 500);
   };
-
-  if (loading) {
-    return (
-      <View className={styles.page}>
-        <View style={{ padding: '200rpx 0', textAlign: 'center' }}>
-          <Text>加载中...</Text>
-        </View>
-      </View>
-    );
-  }
 
   if (!settlement) {
     return (
@@ -171,7 +186,9 @@ const SettlementDetailPage: React.FC = () => {
           </View>
           <View className={styles.customerItem}>
             <Text className={styles.customerValue}>
-              {((settlement.dealCount / settlement.customerCount) * 100).toFixed(0)}%
+              {settlement.customerCount > 0
+                ? ((settlement.dealCount / settlement.customerCount) * 100).toFixed(0)
+                : 0}%
             </Text>
             <Text className={styles.customerLabel}>转化率</Text>
           </View>
@@ -226,12 +243,14 @@ const SettlementDetailPage: React.FC = () => {
 
         {settlement.deals.length > 0 ? (
           <View className={styles.dealList}>
-            {settlement.deals.map(deal => (
+            {settlement.deals.map((deal) => (
               <View key={deal.id} className={styles.dealCard}>
                 <View className={styles.dealHeader}>
                   <View className={styles.projectInfo}>
                     <Text className={styles.projectName}>
-                      <Text className={classnames(styles.categoryTag, styles[deal.projectCategory])}>
+                      <Text
+                        className={classnames(styles.categoryTag, styles[deal.projectCategory])}
+                      >
                         {getProjectCategoryLabel(deal.projectCategory)}
                       </Text>
                       {deal.projectName}
@@ -242,16 +261,19 @@ const SettlementDetailPage: React.FC = () => {
                   </View>
                   <View className={styles.projectAmount}>
                     <Text className={styles.price}>{formatMoney(deal.price)}</Text>
-                    <Text className={styles.commission}>
-                      佣金 {formatMoney(deal.commission)}
-                    </Text>
+                    <Text className={styles.commission}>佣金 {formatMoney(deal.commission)}</Text>
                   </View>
                 </View>
 
                 <View className={styles.customerInfo}>
                   <Text className={styles.customerDetail}>
                     {deal.customer.nameMasked} · {deal.customer.phoneMasked}
-                    <Text className={classnames(styles.customerTag, deal.customer.isFirstTime ? styles.first : styles.repeat)}>
+                    <Text
+                      className={classnames(
+                        styles.customerTag,
+                        deal.customer.isFirstTime ? styles.first : styles.repeat
+                      )}
+                    >
                       {deal.customer.isFirstTime ? '首单' : '复购'}
                     </Text>
                   </Text>
@@ -265,9 +287,7 @@ const SettlementDetailPage: React.FC = () => {
             ))}
           </View>
         ) : (
-          <View className={styles.emptyDeals}>
-            暂无成交明细记录
-          </View>
+          <View className={styles.emptyDeals}>暂无成交明细记录</View>
         )}
       </View>
 
@@ -294,7 +314,7 @@ const SettlementDetailPage: React.FC = () => {
 
       {showConfirmModal && (
         <View className={styles.modal} onClick={() => setShowConfirmModal(false)}>
-          <View className={styles.modalContent} onClick={e => e.stopPropagation()}>
+          <View className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <Text className={styles.modalTitle}>确认结算</Text>
             <Text className={styles.modalText}>
               确认后将提交财务安排付款
@@ -317,22 +337,60 @@ const SettlementDetailPage: React.FC = () => {
       )}
 
       {showRejectModal && (
-        <View className={styles.modal} onClick={() => setShowRejectModal(false)}>
-          <View className={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <Text className={styles.modalTitle}>退回争议</Text>
-            <Text className={styles.modalText}>
-              退回后将由市场人员核实处理
-              {'\n'}
-              是否确认退回？
-            </Text>
-            <View className={styles.modalButtons}>
+        <View
+          className={styles.returnModal}
+          onClick={() => setShowRejectModal(false)}
+        >
+          <View className={styles.returnModalContent} onClick={(e) => e.stopPropagation()}>
+            <View className={styles.returnModalHeader}>
+              <Text className={styles.returnModalTitle}>退回补充材料</Text>
+              <Text className={styles.closeBtn} onClick={() => setShowRejectModal(false)}>
+                ✕
+              </Text>
+            </View>
+
+            <View className={styles.returnFormGroup}>
+              <Text className={styles.returnLabel}>
+                退回原因 <Text className={styles.required}>*</Text>
+              </Text>
+              <Textarea
+                className={styles.returnTextarea}
+                placeholder="请详细说明需要补充的内容..."
+                value={rejectReason}
+                onInput={(e) => setRejectReason(e.detail.value)}
+                maxlength={200}
+              />
+            </View>
+
+            <View className={styles.returnFormGroup}>
+              <Text className={styles.returnLabel}>
+                需要补充的材料 <Text className={styles.required}>*</Text>
+              </Text>
+              <View className={styles.returnCheckboxGroup}>
+                {evidenceOptions.map((item) => (
+                  <View
+                    key={item}
+                    className={classnames(
+                      styles.returnCheckboxItem,
+                      rejectEvidence.includes(item) && styles.active
+                    )}
+                    onClick={() => toggleEvidence(item)}
+                  >
+                    {rejectEvidence.includes(item) ? '✓ ' : ''}
+                    {item}
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View className={styles.returnModalFooter}>
               <View
-                className={styles.modalBtnCancel}
+                className={styles.returnBtnCancel}
                 onClick={() => setShowRejectModal(false)}
               >
                 取消
               </View>
-              <View className={styles.modalBtnConfirm} onClick={handleRejectSubmit}>
+              <View className={styles.returnBtnConfirm} onClick={handleRejectSubmit}>
                 确认退回
               </View>
             </View>

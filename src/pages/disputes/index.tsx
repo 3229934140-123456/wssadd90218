@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Image, Textarea } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import Empty from '@/components/Empty';
-import { mockDisputes, getDisputes } from '@/data/disputes';
+import { useAppStore } from '@/store';
 import type { Dispute, DisputeStatus } from '@/types/dispute';
 import { formatMoney } from '@/utils/format';
 import { getRelativeTime } from '@/utils/date';
@@ -13,10 +13,14 @@ type TabType = 'all' | DisputeStatus;
 
 const DisputesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('all');
-  const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [returnReason, setReturnReason] = useState('');
   const [selectedEvidence, setSelectedEvidence] = useState<string[]>([]);
+  const [currentDisputeId, setCurrentDisputeId] = useState<string | null>(null);
+
+  const disputes = useAppStore((state) => state.disputes);
+  const returnDispute = useAppStore((state) => state.returnDispute);
+  const resolveDispute = useAppStore((state) => state.resolveDispute);
 
   const tabs: { value: TabType; label: string }[] = [
     { value: 'all', label: '全部' },
@@ -34,16 +38,19 @@ const DisputesPage: React.FC = () => {
     '其他材料',
   ];
 
-  useEffect(() => {
-    loadData();
-  }, [activeTab]);
+  useDidShow(() => {
+  });
 
-  const loadData = () => {
-    const data = getDisputes(activeTab === 'all' ? undefined : activeTab);
-    setDisputes(data);
-  };
+  const filteredDisputes = useMemo(() => {
+    if (activeTab === 'all') return disputes;
+    return disputes.filter((d) => d.status === activeTab);
+  }, [disputes, activeTab]);
 
-  const handleReturn = (_dispute: Dispute) => {
+  const pendingCount = disputes.filter((d) => d.status === 'pending').length;
+  const returnedCount = disputes.filter((d) => d.status === 'returned').length;
+
+  const handleReturn = (dispute: Dispute) => {
+    setCurrentDisputeId(dispute.id);
     setReturnReason('');
     setSelectedEvidence([]);
     setShowReturnModal(true);
@@ -58,48 +65,50 @@ const DisputesPage: React.FC = () => {
       Taro.showToast({ title: '请选择需要补充的材料', icon: 'none' });
       return;
     }
+    if (!currentDisputeId) return;
 
     Taro.showLoading({ title: '提交中...' });
+    returnDispute(currentDisputeId, returnReason, selectedEvidence);
     setTimeout(() => {
       Taro.hideLoading();
       Taro.showToast({ title: '已退回市场人员', icon: 'success' });
       setShowReturnModal(false);
-      loadData();
-    }, 1000);
+      setCurrentDisputeId(null);
+    }, 500);
   };
 
-  const handleResolve = (_dispute: Dispute) => {
+  const handleResolve = (dispute: Dispute) => {
     Taro.showModal({
       title: '确认解决',
       content: '确定该争议已解决吗？',
       success: (res) => {
         if (res.confirm) {
           Taro.showLoading({ title: '处理中...' });
+          resolveDispute(dispute.id);
           setTimeout(() => {
             Taro.hideLoading();
             Taro.showToast({ title: '已标记为解决', icon: 'success' });
-            loadData();
-          }, 1000);
+          }, 500);
         }
       },
     });
   };
 
   const toggleEvidence = (item: string) => {
-    setSelectedEvidence(prev =>
-      prev.includes(item)
-        ? prev.filter(e => e !== item)
-        : [...prev, item]
+    setSelectedEvidence((prev) =>
+      prev.includes(item) ? prev.filter((e) => e !== item) : [...prev, item]
     );
   };
 
-  const pendingCount = mockDisputes.filter(d => d.status === 'pending').length;
-  const returnedCount = mockDisputes.filter(d => d.status === 'returned').length;
+  const parseRequiredEvidence = (remark?: string): string[] => {
+    if (!remark || !remark.startsWith('需补充材料：')) return [];
+    return remark.replace('需补充材料：', '').split('、');
+  };
 
   return (
     <ScrollView className={styles.page} scrollY>
       <View className={styles.tabBar}>
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <View
             key={tab.value}
             className={classnames(styles.tabItem, activeTab === tab.value && styles.active)}
@@ -117,8 +126,8 @@ const DisputesPage: React.FC = () => {
       </View>
 
       <View className={styles.content}>
-        {disputes.length > 0 ? (
-          disputes.map(dispute => (
+        {filteredDisputes.length > 0 ? (
+          filteredDisputes.map((dispute) => (
             <View key={dispute.id} className={styles.disputeCard}>
               <View className={styles.header}>
                 <Image className={styles.avatar} src={dispute.creatorAvatar} mode="aspectFill" />
@@ -142,13 +151,31 @@ const DisputesPage: React.FC = () => {
 
               <Text className={styles.description}>{dispute.description}</Text>
 
+              {dispute.status === 'returned' && parseRequiredEvidence(dispute.remark).length > 0 && (
+                <View className={styles.returnInfo}>
+                  <View className={styles.returnInfoHeader}>
+                    <Text className={styles.returnInfoIcon}>📌</Text>
+                    <Text className={styles.returnInfoTitle}>已退回补充材料</Text>
+                    {dispute.returnDate && (
+                      <Text className={styles.returnDate}>{dispute.returnDate}</Text>
+                    )}
+                  </View>
+                  <View className={styles.requiredList}>
+                    <Text className={styles.requiredLabel}>需要补充：</Text>
+                    {parseRequiredEvidence(dispute.remark).map((item, idx) => (
+                      <Text key={idx} className={styles.requiredItem}>
+                        • {item}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+
               {dispute.evidence.length > 0 && (
                 <View className={styles.evidenceSection}>
-                  <Text className={styles.evidenceTitle}>
-                    凭证材料 ({dispute.evidence.length})
-                  </Text>
+                  <Text className={styles.evidenceTitle}>凭证材料 ({dispute.evidence.length})</Text>
                   <ScrollView className={styles.evidenceList} scrollX>
-                    {dispute.evidence.map(ev => (
+                    {dispute.evidence.map((ev) => (
                       <View key={ev.id} className={styles.evidenceItem}>
                         <Image
                           className={styles.evidenceImg}
@@ -186,9 +213,7 @@ const DisputesPage: React.FC = () => {
 
               {dispute.status === 'returned' && (
                 <View className={styles.footer}>
-                  <View className={styles.btnEvidence}>
-                    等待补充材料
-                  </View>
+                  <View className={styles.btnEvidence}>等待补充材料</View>
                   <View className={styles.btnResolve} onClick={() => handleResolve(dispute)}>
                     标记解决
                   </View>
@@ -207,10 +232,12 @@ const DisputesPage: React.FC = () => {
 
       {showReturnModal && (
         <View className={styles.returnModal} onClick={() => setShowReturnModal(false)}>
-          <View className={styles.modalContent} onClick={e => e.stopPropagation()}>
+          <View className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <View className={styles.modalHeader}>
               <Text className={styles.modalTitle}>退回补充材料</Text>
-              <Text className={styles.closeBtn} onClick={() => setShowReturnModal(false)}>✕</Text>
+              <Text className={styles.closeBtn} onClick={() => setShowReturnModal(false)}>
+                ✕
+              </Text>
             </View>
 
             <View className={styles.formGroup}>
@@ -221,7 +248,7 @@ const DisputesPage: React.FC = () => {
                 className={styles.textarea}
                 placeholder="请详细说明需要补充的内容..."
                 value={returnReason}
-                onInput={e => setReturnReason(e.detail.value)}
+                onInput={(e) => setReturnReason(e.detail.value)}
                 maxlength={200}
               />
             </View>
@@ -231,7 +258,7 @@ const DisputesPage: React.FC = () => {
                 需要补充的材料 <Text className={styles.required}>*</Text>
               </Text>
               <View className={styles.checkboxGroup}>
-                {evidenceOptions.map(item => (
+                {evidenceOptions.map((item) => (
                   <View
                     key={item}
                     className={classnames(
@@ -240,7 +267,8 @@ const DisputesPage: React.FC = () => {
                     )}
                     onClick={() => toggleEvidence(item)}
                   >
-                    {selectedEvidence.includes(item) ? '✓ ' : ''}{item}
+                    {selectedEvidence.includes(item) ? '✓ ' : ''}
+                    {item}
                   </View>
                 ))}
               </View>

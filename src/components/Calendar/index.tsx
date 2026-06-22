@@ -1,24 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text } from '@tarojs/components';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
-import type { SettlementDay } from '@/types/settlement';
-import { generateSettlementDays } from '@/data/settlements';
+import type { Settlement } from '@/types/settlement';
 import styles from './index.module.scss';
 
 interface CalendarProps {
   onDateSelect?: (date: string) => void;
   selectedDate?: string;
+  settlements: Settlement[];
 }
 
-const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate }) => {
+const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate, settlements }) => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [selected, setSelected] = useState<string>(selectedDate || dayjs().format('YYYY-MM-DD'));
 
   const year = currentDate.year();
   const month = currentDate.month() + 1;
 
-  const settlementDays = generateSettlementDays(year, month);
+  const settlementDates = useMemo(() => {
+    const dateSet = new Set<string>();
+    const pendingDeadlines = new Map<string, number>();
+
+    settlements.forEach((s) => {
+      if (s.submitDate) {
+        dateSet.add(dayjs(s.submitDate).format('YYYY-MM-DD'));
+      }
+      if (s.status === 'pending') {
+        const deadline = dayjs(s.submitDate).add(5, 'day').format('YYYY-MM-DD');
+        pendingDeadlines.set(deadline, (pendingDeadlines.get(deadline) || 0) + 1);
+      }
+    });
+
+    return { dateSet, pendingDeadlines };
+  }, [settlements]);
 
   const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -54,10 +69,6 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate }) => {
     onDateSelect?.(date);
   };
 
-  const getSettlementDay = (date: string): SettlementDay | undefined => {
-    return settlementDays.find(d => d.date === date);
-  };
-
   return (
     <View className={styles.calendar}>
       <View className={styles.header}>
@@ -71,7 +82,7 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate }) => {
       </View>
 
       <View className={styles.weekDays}>
-        {weekDays.map(day => (
+        {weekDays.map((day) => (
           <Text key={day} className={styles.weekDay}>{day}</Text>
         ))}
       </View>
@@ -82,7 +93,8 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate }) => {
             return <View key={index} className={classnames(styles.dayCell, styles.otherMonth)} />;
           }
 
-          const settlementDay = getSettlementDay(item.date);
+          const hasSettlement = settlementDates.dateSet.has(item.date);
+          const deadlineCount = settlementDates.pendingDeadlines.get(item.date) || 0;
           const isToday = dayjs(item.date).isSame(dayjs(), 'day');
           const isSelected = item.date === selected;
 
@@ -93,12 +105,16 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate }) => {
                 styles.dayCell,
                 isToday && styles.today,
                 isSelected && styles.selected,
-                settlementDay?.hasSettlement && styles.hasSettlement
+                hasSettlement && styles.hasSettlement,
+                deadlineCount > 0 && styles.hasDeadline
               )}
               onClick={() => handleDateClick(item.date!)}
             >
               <Text className={styles.dayNumber}>{item.day}</Text>
-              {settlementDay?.hasSettlement && <View className={styles.dot} />}
+              {hasSettlement && <View className={classnames(styles.dot, styles.green)} />}
+              {deadlineCount > 0 && (
+                <View className={styles.deadlineBadge}>{deadlineCount}</View>
+              )}
             </View>
           );
         })}
@@ -112,6 +128,10 @@ const Calendar: React.FC<CalendarProps> = ({ onDateSelect, selectedDate }) => {
         <View className={styles.legendItem}>
           <View className={classnames(styles.dot, styles.green)} />
           <Text>有结算</Text>
+        </View>
+        <View className={styles.legendItem}>
+          <View className={classnames(styles.dot, styles.red)} />
+          <Text>待确认截止</Text>
         </View>
       </View>
     </View>

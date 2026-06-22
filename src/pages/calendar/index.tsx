@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import Calendar from '@/components/Calendar';
 import Empty from '@/components/Empty';
-import {
-  mockSettlements,
-  getPendingSettlements,
-} from '@/data/settlements';
+import { useAppStore } from '@/store';
 import type { Settlement } from '@/types/settlement';
 import { formatMoney } from '@/utils/format';
 import { formatDate, getDaysRemaining } from '@/utils/date';
@@ -19,23 +16,28 @@ type TabType = 'pending' | 'calendar' | 'history';
 const CalendarPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
-  const [pendingSettlements, setPendingSettlements] = useState<any[]>([]);
-  const [dateSettlements, setDateSettlements] = useState<Settlement[]>([]);
 
-  useEffect(() => {
-    loadData();
-  }, [selectedDate]);
+  const settlements = useAppStore((state) => state.settlements);
 
-  const loadData = () => {
-    const pending = getPendingSettlements();
-    setPendingSettlements(pending);
+  useDidShow(() => {
+  });
 
-    const daySettlements = mockSettlements.filter(s => {
+  const pendingSettlements = useMemo(
+    () => settlements.filter((s) => s.status === 'pending'),
+    [settlements]
+  );
+
+  const dateSettlements = useMemo(() => {
+    return settlements.filter((s) => {
       const submitDate = dayjs(s.submitDate).format('YYYY-MM-DD');
       return submitDate === selectedDate;
     });
-    setDateSettlements(daySettlements);
-  };
+  }, [settlements, selectedDate]);
+
+  const historySettlements = useMemo(
+    () => settlements.filter((s) => s.status !== 'pending'),
+    [settlements]
+  );
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -58,7 +60,14 @@ const CalendarPage: React.FC = () => {
     return labels[status] || status;
   };
 
-  const totalPendingCommission = pendingSettlements.reduce((sum, s) => sum + s.commission, 0);
+  const totalPendingCommission = pendingSettlements.reduce(
+    (sum, s) => sum + s.commission,
+    0
+  );
+
+  const getDeadline = (submitDate: string) => {
+    return dayjs(submitDate).add(5, 'day').format('YYYY-MM-DD');
+  };
 
   return (
     <ScrollView className={styles.page} scrollY>
@@ -99,8 +108,9 @@ const CalendarPage: React.FC = () => {
 
               {pendingSettlements.length > 0 ? (
                 <View className={styles.pendingList}>
-                  {pendingSettlements.map(item => {
-                    const daysRemaining = getDaysRemaining(item.deadline);
+                  {pendingSettlements.map((item) => {
+                    const deadline = getDeadline(item.submitDate);
+                    const daysRemaining = getDaysRemaining(deadline);
                     const isUrgent = daysRemaining <= 3;
 
                     return (
@@ -109,7 +119,11 @@ const CalendarPage: React.FC = () => {
                         className={styles.pendingItem}
                         onClick={() => handleSettlementClick(item.id)}
                       >
-                        <Image className={styles.avatar} src={item.creatorAvatar} mode="aspectFill" />
+                        <Image
+                          className={styles.avatar}
+                          src={item.creatorAvatar}
+                          mode="aspectFill"
+                        />
                         <View className={styles.info}>
                           <Text className={styles.name}>
                             {item.creatorName}
@@ -123,9 +137,13 @@ const CalendarPage: React.FC = () => {
                           </View>
                         </View>
                         <View className={styles.amount}>
-                          <Text className={styles.value}>{formatMoney(item.commission, false)}</Text>
+                          <Text className={styles.value}>
+                            {formatMoney(item.commission, false)}
+                          </Text>
                           <Text className={classnames(styles.deadline, isUrgent && styles.urgent)}>
-                            {isUrgent ? `还剩 ${daysRemaining} 天` : `截止 ${formatDate(item.deadline, 'MM-DD')}`}
+                            {isUrgent
+                              ? `还剩 ${daysRemaining} 天`
+                              : `截止 ${formatDate(deadline, 'MM-DD')}`}
                           </Text>
                         </View>
                         <Text className={styles.arrow}>›</Text>
@@ -147,7 +165,11 @@ const CalendarPage: React.FC = () => {
         {activeTab === 'calendar' && (
           <>
             <View className={styles.section}>
-              <Calendar onDateSelect={handleDateSelect} selectedDate={selectedDate} />
+              <Calendar
+                onDateSelect={handleDateSelect}
+                selectedDate={selectedDate}
+                settlements={settlements}
+              />
             </View>
 
             <View className={styles.section}>
@@ -178,20 +200,27 @@ const CalendarPage: React.FC = () => {
                       </View>
                       <View className={styles.summaryItem}>
                         <Text className={classnames(styles.value, styles.amount)}>
-                          {formatMoney(dateSettlements.reduce((sum, s) => sum + s.commission, 0), false)}
+                          {formatMoney(
+                            dateSettlements.reduce((sum, s) => sum + s.commission, 0),
+                            false
+                          )}
                         </Text>
                         <Text className={styles.label}>佣金</Text>
                       </View>
                     </View>
 
                     <View className={styles.settlementList}>
-                      {dateSettlements.map(item => (
+                      {dateSettlements.map((item) => (
                         <View
                           key={item.id}
                           className={styles.settlementItem}
                           onClick={() => handleSettlementClick(item.id)}
                         >
-                          <Image className={styles.avatar} src={item.creatorAvatar} mode="aspectFill" />
+                          <Image
+                            className={styles.avatar}
+                            src={item.creatorAvatar}
+                            mode="aspectFill"
+                          />
                           <View className={styles.info}>
                             <Text className={styles.name}>{item.creatorName}</Text>
                             <Text className={styles.meta}>
@@ -199,8 +228,12 @@ const CalendarPage: React.FC = () => {
                             </Text>
                           </View>
                           <View className={styles.status}>
-                            <Text className={styles.amount}>{formatMoney(item.commission, false)}</Text>
-                            <Text className={classnames(styles.statusText, styles[item.status])}>
+                            <Text className={styles.amount}>
+                              {formatMoney(item.commission, false)}
+                            </Text>
+                            <Text
+                              className={classnames(styles.statusText, styles[item.status])}
+                            >
                               {getStatusLabel(item.status)}
                             </Text>
                           </View>
@@ -226,33 +259,39 @@ const CalendarPage: React.FC = () => {
               <Text className={styles.sectionTitle}>历史结算记录</Text>
             </View>
 
-            {mockSettlements.filter(s => s.status !== 'pending').length > 0 ? (
+            {historySettlements.length > 0 ? (
               <View className={styles.pendingList}>
-                {mockSettlements
-                  .filter(s => s.status !== 'pending')
-                  .map(item => (
-                    <View
-                      key={item.id}
-                      className={styles.pendingItem}
-                      onClick={() => handleSettlementClick(item.id)}
-                    >
-                      <Image className={styles.avatar} src={item.creatorAvatar} mode="aspectFill" />
-                      <View className={styles.info}>
-                        <Text className={styles.name}>{item.creatorName}</Text>
-                        <View className={styles.meta}>
-                          <Text className={styles.period}>{item.period}</Text>
-                          <Text className={styles.count}>{item.dealCount} 笔成交</Text>
-                        </View>
+                {historySettlements.map((item) => (
+                  <View
+                    key={item.id}
+                    className={styles.pendingItem}
+                    onClick={() => handleSettlementClick(item.id)}
+                  >
+                    <Image
+                      className={styles.avatar}
+                      src={item.creatorAvatar}
+                      mode="aspectFill"
+                    />
+                    <View className={styles.info}>
+                      <Text className={styles.name}>{item.creatorName}</Text>
+                      <View className={styles.meta}>
+                        <Text className={styles.period}>{item.period}</Text>
+                        <Text className={styles.count}>{item.dealCount} 笔成交</Text>
                       </View>
-                      <View className={styles.status}>
-                        <Text className={styles.value}>{formatMoney(item.commission, false)}</Text>
-                        <Text className={classnames(styles.statusText, styles[item.status])}>
-                          {getStatusLabel(item.status)}
-                        </Text>
-                      </View>
-                      <Text className={styles.arrow}>›</Text>
                     </View>
-                  ))}
+                    <View className={styles.status}>
+                      <Text className={styles.value}>
+                        {formatMoney(item.commission, false)}
+                      </Text>
+                      <Text
+                        className={classnames(styles.statusText, styles[item.status])}
+                      >
+                        {getStatusLabel(item.status)}
+                      </Text>
+                    </View>
+                    <Text className={styles.arrow}>›</Text>
+                  </View>
+                ))}
               </View>
             ) : (
               <Empty

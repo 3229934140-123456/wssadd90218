@@ -336,16 +336,32 @@
   flex: 1;
 }
 
+.settlementMonthRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-xs;
+}
+
 .settlementMonth {
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
-  margin-bottom: $spacing-xs;
+  margin-right: $spacing-xs;
+}
+
+.highCommissionTagSmall {
+  font-size: $font-size-xs;
 }
 
 .settlementMeta {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.settlementHint {
+  font-size: $font-size-xs;
+  color: $color-primary;
 }
 
 .settlementAmount {

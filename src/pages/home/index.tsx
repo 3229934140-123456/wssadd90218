@@ -1,38 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ScrollView, Image } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import dayjs from 'dayjs';
 import StatCard from '@/components/StatCard';
 import Tag from '@/components/Tag';
-import { mockCreatorRankings } from '@/data/creators';
-import { getPendingSettlements } from '@/data/settlements';
-import { getPendingDisputeCount } from '@/data/disputes';
+import { useAppStore } from '@/store';
 import { getProjectComparisons } from '@/data/projects';
 import { formatMoney, getROILabel } from '@/utils/format';
 import { formatDate } from '@/utils/date';
 import styles from './index.module.scss';
 
 const HomePage: React.FC = () => {
-  const [pendingCount, setPendingCount] = useState(0);
-  const [disputeCount, setDisputeCount] = useState(0);
-  const [pendingSettlements, setPendingSettlements] = useState<any[]>([]);
-  const [projectComparisons, setProjectComparisons] = useState<any[]>([]);
+  const settlements = useAppStore((state) => state.settlements);
+  const disputes = useAppStore((state) => state.disputes);
+  const creatorRankings = useAppStore((state) => state.creatorRankings);
+  const creators = useAppStore((state) => state.creators);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useDidShow(() => {
+  });
 
-  const loadData = () => {
-    const pending = getPendingSettlements();
-    const disputes = getPendingDisputeCount();
-    const comparisons = getProjectComparisons();
+  const pendingSettlements = useMemo(
+    () => settlements.filter((s) => s.status === 'pending'),
+    [settlements]
+  );
+  const pendingCount = pendingSettlements.length;
+  const disputeCount = disputes.filter((d) => d.status === 'pending').length;
+  const totalCommission = pendingSettlements.reduce((sum, s) => sum + s.commission, 0);
 
-    setPendingSettlements(pending);
-    setPendingCount(pending.length);
-    setDisputeCount(disputes);
-    setProjectComparisons(comparisons);
-  };
+  const projectComparisons = useMemo(() => getProjectComparisons(), []);
+
+  const greeting = dayjs().hour() < 12 ? '早上好' : dayjs().hour() < 18 ? '下午好' : '晚上好';
 
   const handleViewAllCreators = () => {
     Taro.switchTab({ url: '/pages/creators/index' });
@@ -51,9 +49,6 @@ const HomePage: React.FC = () => {
       url: `/pages/creator-detail/index?id=${creatorId}`,
     });
   };
-
-  const totalCommission = pendingSettlements.reduce((sum, s) => sum + s.commission, 0);
-  const greeting = dayjs().hour() < 12 ? '早上好' : dayjs().hour() < 18 ? '下午好' : '晚上好';
 
   return (
     <ScrollView className={styles.page} scrollY>
@@ -74,7 +69,7 @@ const HomePage: React.FC = () => {
             <Text className={styles.label}>总成交额</Text>
           </View>
           <View className={styles.summaryItem}>
-            <Text className={styles.value}>8位</Text>
+            <Text className={styles.value}>{creators.length}位</Text>
             <Text className={styles.label}>合作达人</Text>
           </View>
         </View>
@@ -124,7 +119,7 @@ const HomePage: React.FC = () => {
             </Text>
           </View>
           <View className={styles.rankingList}>
-            {mockCreatorRankings.map((item, index) => (
+            {creatorRankings.slice(0, 5).map((item, index) => (
               <View
                 key={item.creatorId}
                 className={styles.rankingItem}
@@ -175,7 +170,10 @@ const HomePage: React.FC = () => {
             <Text className={styles.sectionTitle}>待审批事项</Text>
           </View>
           <View className={styles.pendingCards}>
-            <View className={classnames(styles.pendingCard, styles.settlement)} onClick={handleViewPending}>
+            <View
+              className={classnames(styles.pendingCard, styles.settlement)}
+              onClick={handleViewPending}
+            >
               <View className={styles.cardHeader}>
                 <Text className={styles.cardTitle}>待确认结算</Text>
                 {pendingCount > 0 && <View className={styles.badge}>{pendingCount}</View>}
@@ -186,7 +184,10 @@ const HomePage: React.FC = () => {
                 <Text className={styles.desc}>请在结算日前确认</Text>
               </View>
             </View>
-            <View className={classnames(styles.pendingCard, styles.dispute)} onClick={handleViewDisputes}>
+            <View
+              className={classnames(styles.pendingCard, styles.dispute)}
+              onClick={handleViewDisputes}
+            >
               <View className={styles.cardHeader}>
                 <Text className={styles.cardTitle}>待处理争议</Text>
                 {disputeCount > 0 && <View className={styles.badge}>{disputeCount}</View>}
@@ -204,7 +205,7 @@ const HomePage: React.FC = () => {
             <Text className={styles.sectionTitle}>门店项目效果对比</Text>
           </View>
           <ScrollView className={styles.projectComparison} scrollX>
-            {projectComparisons.map(project => (
+            {projectComparisons.map((project) => (
               <View key={project.category} className={styles.projectCard}>
                 <Text className={styles.projectTitle}>{project.categoryName}项目</Text>
                 {project.stores.map((store: any) => (
