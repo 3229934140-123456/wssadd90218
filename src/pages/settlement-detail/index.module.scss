@@ -576,6 +576,16 @@
   color: $color-text-tertiary;
 }
 
+.commissionSourceTag {
+  display: inline-block;
+  padding: 2rpx 8rpx;
+  background: #EDE9FE;
+  color: #7C3AED;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  margin-left: $spacing-xs;
+}
+
 .returnModal {
   position: fixed;
   top: 0;

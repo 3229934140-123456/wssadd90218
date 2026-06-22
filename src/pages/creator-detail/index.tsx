@@ -102,8 +102,8 @@ const CreatorDetailPage: React.FC = () => {
         };
       default:
         return {
-          typeLabel: getCommissionTypeLabel(rule.type),
-          detail: '',
+          typeLabel: '自定义规则',
+          detail: '请联系管理员确认佣金规则',
         };
     }
   };

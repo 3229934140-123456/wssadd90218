@@ -13,6 +13,7 @@ export interface DealItem {
   projectCategory: 'skincare' | 'hair_removal' | 'anti_aging';
   price: number;
   commission: number;
+  commissionSource: 'fixed' | 'per_order' | 'tiered';
   customer: CustomerInfo;
   isHighCommission: boolean;
 }

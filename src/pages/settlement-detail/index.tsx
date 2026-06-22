@@ -12,6 +12,12 @@ import {
 import { formatDate } from '@/utils/date';
 import styles from './index.module.scss';
 
+const commissionSourceLabels: Record<string, string> = {
+  fixed: '固定佣金',
+  per_order: '按单提成',
+  tiered: '阶梯奖励',
+};
+
 const SettlementDetailPage: React.FC = () => {
   const router = useRouter();
   const settlements = useAppStore((state) => state.settlements);
@@ -120,6 +126,28 @@ const SettlementDetailPage: React.FC = () => {
 
   const canEdit = settlement.status === 'pending';
 
+  const derivedStats = useMemo(() => {
+    if (settlement.deals.length > 0) {
+      const deals = settlement.deals;
+      return {
+        customerCount: deals.length,
+        dealCount: deals.length,
+        firstTimeCount: deals.filter(d => d.customer.isFirstTime).length,
+        repeatCount: deals.filter(d => !d.customer.isFirstTime).length,
+        totalAmount: deals.reduce((s, d) => s + d.price, 0),
+        commission: deals.reduce((s, d) => s + d.commission, 0),
+      };
+    }
+    return {
+      customerCount: settlement.customerCount,
+      dealCount: settlement.dealCount,
+      firstTimeCount: settlement.firstTimeCount,
+      repeatCount: settlement.repeatCount,
+      totalAmount: settlement.totalAmount,
+      commission: settlement.commission,
+    };
+  }, [settlement]);
+
   return (
     <ScrollView className={styles.page} scrollY>
       <View className={styles.header}>
@@ -150,7 +178,7 @@ const SettlementDetailPage: React.FC = () => {
         <View className={styles.amountSection}>
           <View>
             <Text className={styles.amountLabel}>应付佣金</Text>
-            <Text className={styles.amountValue}>{formatMoney(settlement.commission)}</Text>
+            <Text className={styles.amountValue}>{formatMoney(derivedStats.commission)}</Text>
           </View>
         </View>
       </View>
@@ -162,32 +190,32 @@ const SettlementDetailPage: React.FC = () => {
         </Text>
         <View className={styles.statsGrid}>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{settlement.customerCount}</Text>
+            <Text className={styles.statValue}>{derivedStats.customerCount}</Text>
             <Text className={styles.statLabel}>到院人数</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{settlement.dealCount}</Text>
+            <Text className={styles.statValue}>{derivedStats.dealCount}</Text>
             <Text className={styles.statLabel}>成交单数</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{formatMoney(settlement.totalAmount)}</Text>
+            <Text className={styles.statValue}>{formatMoney(derivedStats.totalAmount)}</Text>
             <Text className={styles.statLabel}>总成交额</Text>
           </View>
         </View>
 
         <View className={styles.customerStats}>
           <View className={styles.customerItem}>
-            <Text className={styles.customerValue}>{settlement.firstTimeCount}</Text>
+            <Text className={styles.customerValue}>{derivedStats.firstTimeCount}</Text>
             <Text className={styles.customerLabel}>首单顾客</Text>
           </View>
           <View className={styles.customerItem}>
-            <Text className={styles.customerValue}>{settlement.repeatCount}</Text>
+            <Text className={styles.customerValue}>{derivedStats.repeatCount}</Text>
             <Text className={styles.customerLabel}>复购顾客</Text>
           </View>
           <View className={styles.customerItem}>
             <Text className={styles.customerValue}>
-              {settlement.customerCount > 0
-                ? ((settlement.dealCount / settlement.customerCount) * 100).toFixed(0)
+              {derivedStats.customerCount > 0
+                ? ((derivedStats.dealCount / derivedStats.customerCount) * 100).toFixed(0)
                 : 0}%
             </Text>
             <Text className={styles.customerLabel}>转化率</Text>
@@ -323,6 +351,9 @@ const SettlementDetailPage: React.FC = () => {
                           >
                             {deal.customer.isFirstTime ? '首单' : '复购'}
                           </Text>
+                          <Text className={styles.commissionSourceTag}>
+                            {commissionSourceLabels[deal.commissionSource] || deal.commissionSource}
+                          </Text>
                           {deal.isHighCommission && (
                             <Text className={styles.highCommissionTag}>高额</Text>
                           )}
@@ -389,6 +420,9 @@ const SettlementDetailPage: React.FC = () => {
                     >
                       {deal.customer.isFirstTime ? '首单' : '复购'}
                     </Text>
+                    <Text className={styles.commissionSourceTag}>
+                      {commissionSourceLabels[deal.commissionSource] || deal.commissionSource}
+                    </Text>
                   </Text>
                   <Text className={styles.dates}>
                     咨询 {formatDate(deal.customer.consultDate)}
@@ -432,7 +466,7 @@ const SettlementDetailPage: React.FC = () => {
             <Text className={styles.modalText}>
               确认后将提交财务安排付款
               {'\n'}
-              应付佣金：{formatMoney(settlement.commission)}
+              应付佣金：{formatMoney(derivedStats.commission)}
             </Text>
             <View className={styles.modalButtons}>
               <View
