@@ -444,6 +444,138 @@
   font-size: $font-size-sm;
 }
 
+.checkSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+  padding: $spacing-md;
+  background: linear-gradient(135deg, #FEF2F2 0%, #FEF3C7 100%);
+  border-radius: $radius-md;
+}
+
+.checkSummaryItem {
+  text-align: center;
+}
+
+.checkSummaryLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.checkSummaryValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-error;
+}
+
+.projectGroup {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.projectGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.projectGroupTitle {
+  display: flex;
+  align-items: center;
+}
+
+.projectGroupName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.projectGroupStats {
+  text-align: right;
+}
+
+.projectGroupAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-amount;
+  display: block;
+}
+
+.projectGroupCommission {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.projectGroupSubStats {
+  display: flex;
+  gap: $spacing-lg;
+  padding-bottom: $spacing-sm;
+  margin-bottom: $spacing-sm;
+  border-bottom: 1px dashed $color-border;
+}
+
+.subStat {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.customerList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.customerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: $radius-sm;
+}
+
+.customerRowInfo {
+  flex: 1;
+}
+
+.customerRowName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.customerRowTags {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.customerRowAmount {
+  text-align: right;
+}
+
+.customerRowPrice {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-amount;
+  display: block;
+}
+
+.customerRowCommission {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
 .returnModal {
   position: fixed;
   top: 0;

@@ -230,6 +230,119 @@ const SettlementDetailPage: React.FC = () => {
         </View>
       </View>
 
+      {settlement.isHighCommission && (
+        <View className={styles.section}>
+          <Text className={styles.sectionTitle}>
+            <Text className={styles.sectionIcon}>🔍</Text>
+            高额佣金核对清单
+          </Text>
+          <View className={styles.checkSummary}>
+            <View className={styles.checkSummaryItem}>
+              <Text className={styles.checkSummaryLabel}>成交项目</Text>
+              <Text className={styles.checkSummaryValue}>{new Set(settlement.deals.map(d => d.projectName)).size} 类</Text>
+            </View>
+            <View className={styles.checkSummaryItem}>
+              <Text className={styles.checkSummaryLabel}>成交人数</Text>
+              <Text className={styles.checkSummaryValue}>{settlement.deals.length} 人</Text>
+            </View>
+            <View className={styles.checkSummaryItem}>
+              <Text className={styles.checkSummaryLabel}>高额项目</Text>
+              <Text className={styles.checkSummaryValue}>
+                {settlement.deals.filter(d => d.isHighCommission).length} 单
+              </Text>
+            </View>
+          </View>
+          {(() => {
+            const groupedByProject = settlement.deals.reduce((acc, deal) => {
+              if (!acc[deal.projectName]) {
+                acc[deal.projectName] = {
+                  deals: [],
+                  totalAmount: 0,
+                  totalCommission: 0,
+                  firstTimeCount: 0,
+                  repeatCount: 0,
+                  category: deal.projectCategory,
+                };
+              }
+              acc[deal.projectName].deals.push(deal);
+              acc[deal.projectName].totalAmount += deal.price;
+              acc[deal.projectName].totalCommission += deal.commission;
+              if (deal.customer.isFirstTime) {
+                acc[deal.projectName].firstTimeCount++;
+              } else {
+                acc[deal.projectName].repeatCount++;
+              }
+              return acc;
+            }, {} as Record<string, {
+              deals: typeof settlement.deals;
+              totalAmount: number;
+              totalCommission: number;
+              firstTimeCount: number;
+              repeatCount: number;
+              category: string;
+            }>);
+
+            return Object.entries(groupedByProject).map(([projectName, data]) => (
+              <View key={projectName} className={styles.projectGroup}>
+                <View className={styles.projectGroupHeader}>
+                  <View className={styles.projectGroupTitle}>
+                    <Text
+                      className={classnames(styles.categoryTag, styles[data.category as keyof typeof styles])}
+                    >
+                      {getProjectCategoryLabel(data.category as any)}
+                    </Text>
+                    <Text className={styles.projectGroupName}>{projectName}</Text>
+                  </View>
+                  <View className={styles.projectGroupStats}>
+                    <Text className={styles.projectGroupAmount}>
+                      营收 {formatMoney(data.totalAmount)}
+                    </Text>
+                    <Text className={styles.projectGroupCommission}>
+                      佣金 {formatMoney(data.totalCommission)}
+                    </Text>
+                  </View>
+                </View>
+                <View className={styles.projectGroupSubStats}>
+                  <Text className={styles.subStat}>成交 {data.deals.length} 单</Text>
+                  <Text className={styles.subStat}>首单 {data.firstTimeCount} 人</Text>
+                  <Text className={styles.subStat}>复购 {data.repeatCount} 人</Text>
+                </View>
+                <View className={styles.customerList}>
+                  {data.deals.map((deal) => (
+                    <View key={deal.id} className={styles.customerRow}>
+                      <View className={styles.customerRowInfo}>
+                        <Text className={styles.customerRowName}>
+                          {deal.customer.nameMasked} · {deal.customer.phoneMasked}
+                        </Text>
+                        <View className={styles.customerRowTags}>
+                          <Text
+                            className={classnames(
+                              styles.customerTag,
+                              deal.customer.isFirstTime ? styles.first : styles.repeat
+                            )}
+                          >
+                            {deal.customer.isFirstTime ? '首单' : '复购'}
+                          </Text>
+                          {deal.isHighCommission && (
+                            <Text className={styles.highCommissionTag}>高额</Text>
+                          )}
+                        </View>
+                      </View>
+                      <View className={styles.customerRowAmount}>
+                        <Text className={styles.customerRowPrice}>{formatMoney(deal.price)}</Text>
+                        <Text className={styles.customerRowCommission}>
+                          佣金 {formatMoney(deal.commission)}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ));
+          })()}
+        </View>
+      )}
+
       <View className={styles.section}>
         <Text className={styles.sectionTitle}>
           <Text className={styles.sectionIcon}>💼</Text>

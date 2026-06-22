@@ -9,6 +9,43 @@ import { mockSettlements, getPendingSettlements } from '@/data/settlements';
 import { mockDisputes } from '@/data/disputes';
 import { mockPayments } from '@/data/payments';
 
+export const calculateCommission = (
+  rule: CommissionRule,
+  dealCount: number,
+  totalRevenue: number
+): number => {
+  switch (rule.type) {
+    case 'fixed':
+      return (rule.fixedAmount || 0) * dealCount;
+    case 'per_order':
+      return Math.round(totalRevenue * (rule.percentage || 0));
+    case 'tiered':
+      if (!rule.tiers || rule.tiers.length === 0) return 0;
+      let percentage = 0;
+      rule.tiers.forEach((tier) => {
+        if (totalRevenue >= tier.threshold) percentage = tier.percentage;
+      });
+      return Math.round(totalRevenue * percentage);
+    default:
+      return 0;
+  }
+};
+
+export const getCommissionRuleSummary = (rule: CommissionRule): string => {
+  switch (rule.type) {
+    case 'fixed':
+      return `固定佣金 ${rule.fixedAmount?.toLocaleString()} 元/单`;
+    case 'per_order':
+      return `按单提成 ${((rule.percentage || 0) * 100).toFixed(0)}%`;
+    case 'tiered':
+      if (!rule.tiers || rule.tiers.length === 0) return '阶梯奖励';
+      const lastTier = rule.tiers[rule.tiers.length - 1];
+      return `阶梯奖励 ${((lastTier.percentage) * 100).toFixed(0)}% 封顶`;
+    default:
+      return '未设置';
+  }
+};
+
 interface AppState {
   creators: Creator[];
   creatorRankings: CreatorRanking[];
@@ -21,6 +58,7 @@ interface AppState {
   getDisputeById: (id: string) => Dispute | undefined;
   getPendingSettlementCount: () => number;
   getPendingDisputeCount: () => number;
+  calculateCommissionByCreator: (creatorId: string) => { commission: number; roiValue: number; summary: string };
 
   updateCommissionRule: (creatorId: string, rule: CommissionRule) => void;
   confirmSettlement: (settlementId: string) => void;
@@ -54,6 +92,19 @@ export const useAppStore = create<AppState>()(
         get().settlements.filter((s) => s.status === 'pending').length,
       getPendingDisputeCount: () =>
         get().disputes.filter((d) => d.status === 'pending').length,
+
+      calculateCommissionByCreator: (creatorId) => {
+        const creator = get().creators.find((c) => c.id === creatorId);
+        if (!creator) return { commission: 0, roiValue: 0, summary: '' };
+        const { dealCount, totalRevenue } = creator.monthlyData;
+        const rule = creator.commissionRule;
+        const commission = calculateCommission(rule, dealCount, totalRevenue);
+        const roiValue = commission > 0
+          ? Number((totalRevenue / commission).toFixed(1))
+          : 0;
+        const summary = getCommissionRuleSummary(rule);
+        return { commission, roiValue, summary };
+      },
 
       updateCommissionRule: (creatorId, rule) =>
         set((state) => {

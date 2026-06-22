@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import classnames from 'classnames';
 import Empty from '@/components/Empty';
-import { useAppStore } from '@/store';
+import { useAppStore, calculateCommission, getCommissionRuleSummary } from '@/store';
 import type { CommissionRule } from '@/types/creator';
 import {
   formatMoney,
@@ -11,7 +11,6 @@ import {
   formatROI,
   getROILabel,
   getROIType,
-  getCommissionTypeLabel,
   getProjectCategoryLabel,
 } from '@/utils/format';
 import { formatDate } from '@/utils/date';
@@ -20,6 +19,7 @@ import styles from './index.module.scss';
 const CreatorDetailPage: React.FC = () => {
   const router = useRouter();
   const creators = useAppStore((state) => state.creators);
+  const creatorRankings = useAppStore((state) => state.creatorRankings);
   const settlements = useAppStore((state) => state.settlements);
 
   const creatorId = router.params.id || '1';
@@ -27,6 +27,36 @@ const CreatorDetailPage: React.FC = () => {
     () => creators.find((c) => c.id === creatorId),
     [creators, creatorId]
   );
+
+  const ranking = useMemo(
+    () => creatorRankings.find((r) => r.creatorId === creatorId),
+    [creatorRankings, creatorId]
+  );
+
+  const liveCalculation = useMemo(() => {
+    if (!creator) return null;
+    const { dealCount, totalRevenue } = creator.monthlyData;
+    const rule = creator.commissionRule;
+    const newCommission = calculateCommission(rule, dealCount, totalRevenue);
+    const newRoiValue = newCommission > 0
+      ? Number((totalRevenue / newCommission).toFixed(1))
+      : 0;
+    const oldCommission = creator.monthlyData.commission;
+    const oldRoiValue = ranking?.roiValue || creator.roiValue;
+    const diffCommission = newCommission - oldCommission;
+    const diffRoi = Number((newRoiValue - oldRoiValue).toFixed(1));
+    const summary = getCommissionRuleSummary(rule);
+    return {
+      newCommission,
+      newRoiValue,
+      oldCommission,
+      oldRoiValue,
+      diffCommission,
+      diffRoi,
+      summary,
+      hasChanges: diffCommission !== 0,
+    };
+  }, [creator, ranking]);
 
   useDidShow(() => {
   });
@@ -165,7 +195,9 @@ const CreatorDetailPage: React.FC = () => {
             <Text className={styles.statLabel}>客单价</Text>
           </View>
           <View className={styles.statItem}>
-            <Text className={styles.statValue}>{formatMoney(creator.monthlyData.commission)}</Text>
+            <Text className={styles.statValue}>
+              {liveCalculation ? formatMoney(liveCalculation.newCommission) : formatMoney(creator.monthlyData.commission)}
+            </Text>
             <Text className={styles.statLabel}>应付佣金</Text>
           </View>
         </View>
@@ -186,6 +218,53 @@ const CreatorDetailPage: React.FC = () => {
             <Text className={styles.customerLabel}>复购率</Text>
           </View>
         </View>
+
+        {liveCalculation && (
+          <View className={classnames(styles.commissionPreview, liveCalculation.hasChanges && styles.hasChanges)}>
+            <View className={styles.previewHeader}>
+              <Text className={styles.previewTitle}>
+                <Text className={styles.previewIcon}>🧮</Text>
+                佣金试算
+              </Text>
+              {liveCalculation.hasChanges && (
+                <View className={styles.previewBadge}>已更新</View>
+              )}
+            </View>
+            <Text className={styles.previewRule}>规则：{liveCalculation.summary}</Text>
+            <View className={styles.previewGrid}>
+              <View className={styles.previewItem}>
+                <Text className={styles.previewLabel}>本月应付佣金</Text>
+                <Text className={styles.previewValue}>
+                  {formatMoney(liveCalculation.newCommission)}
+                  {liveCalculation.hasChanges && (
+                    <Text className={classnames(
+                      styles.previewDiff,
+                      liveCalculation.diffCommission > 0 ? styles.up : styles.down
+                    )}>
+                      {liveCalculation.diffCommission > 0 ? '↑' : '↓'}
+                      {formatMoney(Math.abs(liveCalculation.diffCommission))}
+                    </Text>
+                  )}
+                </Text>
+              </View>
+              <View className={styles.previewItem}>
+                <Text className={styles.previewLabel}>预计投产比</Text>
+                <Text className={styles.previewValue}>
+                  {formatROI(liveCalculation.newRoiValue)}
+                  {liveCalculation.hasChanges && (
+                    <Text className={classnames(
+                      styles.previewDiff,
+                      liveCalculation.diffRoi > 0 ? styles.up : styles.down
+                    )}>
+                      {liveCalculation.diffRoi > 0 ? '↑' : '↓'}
+                      {liveCalculation.diffRoi > 0 ? '+' : ''}{liveCalculation.diffRoi}
+                    </Text>
+                  )}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
       </View>
 
       <View className={styles.section}>

@@ -472,3 +472,90 @@
   font-size: $font-size-md;
   font-weight: $font-weight-medium;
 }
+
+.commissionPreview {
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, #F0FDF4 0%, #ECFEFF 100%);
+  border: 2rpx solid #86EFAC;
+  border-radius: $radius-md;
+
+  &.hasChanges {
+    background: linear-gradient(135deg, #FEF3C7 0%, #F0FDF4 100%);
+    border-color: #FCD34D;
+  }
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.previewTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.previewIcon {
+  margin-right: $spacing-xs;
+}
+
+.previewBadge {
+  padding: 4rpx 12rpx;
+  background: #FCD34D;
+  color: #92400E;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.previewRule {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-md;
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.previewItem {
+  background: rgba(255, 255, 255, 0.8);
+  padding: $spacing-md;
+  border-radius: $radius-sm;
+}
+
+.previewLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.previewValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-amount;
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.previewDiff {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  &.up {
+    color: $color-roi-high;
+  }
+
+  &.down {
+    color: $color-roi-low;
+  }
+}
